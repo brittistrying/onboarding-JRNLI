@@ -1,4 +1,9 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+const EXPLORE_URL = "/app/sample"; // <--- replace with sample route
 
 const OPTIONS = [
   "Email or Newsletter",
@@ -6,175 +11,90 @@ const OPTIONS = [
   "Research or Academic",
   "Business Document",
   "Marketing Copy",
-  "Other"
+  "Other",
 ];
 
-export function Step1_ProjectType({ projectType, setProjectType, onNext, onSample }) {
-  const contentMaxWidth = 500;
-  const black = "#0D090A";
-  const white = "#FFFFFF";
+export default function Step1_ProjectType({
+  setStepValid,
+  workspaceData,
+  setWorkspaceData,
+}) {
+  const router = useRouter();
+  const [selected, setSelected] = useState(workspaceData.projectType || null);
+
+  useEffect(() => {
+    setStepValid(Boolean(selected));
+
+    setWorkspaceData((prev) => ({ ...prev, projectType: selected }));
+
+    console.log("Step 1 selected project type:", selected);
+  }, [selected]);
+
+  function handleOptionClick(option) {
+    setSelected(option);
+  }
+
+  function handleExploreClick() {
+    router.push(EXPLORE_URL);
+  }
 
   return (
-    <div
-      style={{
-        padding: 40,
-        fontFamily: "Inter, sans-serif",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        backgroundColor: white,
-        minHeight: "100vh",
-      }}
-    >
-      {/* Step Counter */}
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginBottom: 32 }}>
-        {[1, 2, 3].map((step, index) => (
-          <React.Fragment key={step}>
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: "bold",
-                fontSize: 16,
-                border: step === 1 ? `3px solid ${black}` : "2px solid #555",
-                color: step === 1 ? black : "#555",
-                backgroundColor: white,
-                zIndex: 1,
-              }}
-            >
-              {step}
-            </div>
-            {index < 2 && (
-              <div
-                style={{
-                  width: 48,
-                  height: 2,
-                  backgroundColor: "#555",
-                  margin: "0 8px",
-                  alignSelf: "center",
-                }}
-              />
-            )}
-          </React.Fragment>
-        ))}
-      </div>
-
-      {/* Main content */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 24,
-          maxWidth: contentMaxWidth,
-          alignItems: "center",
-        }}
-      >
-        <h2
-          style={{
-            textAlign: "center",
-            fontFamily: "Archiv Grotesk, sans-serif",
-            fontWeight: 600,
-            color: black,
-          }}
-        >
+    <section className="p-6 bg-white rounded shadow flex flex-col gap-6">
+      <header>
+        <h1 className="text-2xl font-semibold">
           Let's Create Your First Workspace!
-        </h2>
-
-        <p style={{ textAlign: "center", fontFamily: "Inter, sans-serif", color: "#0D090A" }}>
-          Contextual workspaces are dedicated focus areas that group your documents, notes, and assets relevant to a specific objective.
-          By organizing everything in one place, each item is meant to work together so the workspace steadily moves you toward the goal it’s designed to achieve.
+        </h1>
+        <p className="mt-3 text-sm text-gray-700 leading-relaxed">
+          Contextual workspaces are dedicated focus areas that group your
+          documents, notes, and assets relevant to a specific objective.
         </p>
+      </header>
 
-        <h2
-          style={{
-            textAlign: "center",
-            fontFamily: "Archiv Grotesk, sans-serif",
-            fontWeight: 600,
-            color: black,
-          }}
-        >
+      <div>
+        <h2 className="text-lg font-medium">
           What type of project are you working on?
         </h2>
+        <p className="text-xs text-gray-500 mt-1">Choose one to continue.</p>
+      </div>
 
-        {/* Buttons + Just Exploring wrapped in single div */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 4, width: "100%" }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 12,
-              width: "100%",
-            }}
-          >
-            {OPTIONS.map((o) => (
+      {/* Options grid + Just Exploring */}
+      <div className="flex flex-col gap-1 mt-3">
+        <div
+          role="radiogroup"
+          aria-label="Project type"
+          className="grid grid-cols-3 gap-4"
+        >
+          {OPTIONS.map((opt) => {
+            const active = selected === opt;
+            return (
               <button
-                key={o}
-                onClick={() => setProjectType(o)}
-                style={{
-                  padding: "12px 20px",
-                  borderRadius: 8,
-                  border: projectType === o ? `2px solid ${black}` : "1px solid #ccc",
-                  backgroundColor: projectType === o ? black : white,
-                  color: projectType === o ? white : black,
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                  width: "100%",
-                  fontFamily: "Inter, sans-serif",
-                }}
+                key={opt}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                onClick={() => handleOptionClick(opt)}
+                className={
+                  "rounded-lg px-3 py-3 text-sm text-center w-full transition-shadow duration-150 " +
+                  (active
+                    ? "bg-[#0D090A] text-white ring-2 ring-offset-2 ring-[#0D090A]"
+                    : "bg-white border border-gray-200 text-[#0D090A] hover:shadow-sm")
+                }
               >
-                {o}
+                {opt}
               </button>
-            ))}
-          </div>
+            );
+          })}
+        </div>
 
-          {/* Just Exploring below buttons */}
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <span
-              onClick={onSample}
-              style={{
-                textDecoration: "underline",
-                cursor: "pointer",
-                color: black,
-                fontWeight: 500,
-                fontFamily: "Inter, sans-serif",
-              }}
-            >
-              Just Exploring
-            </span>
-          </div>
+        <div className="flex justify-center">
+          <span
+            onClick={handleExploreClick}
+            className="underline text-[#0D090A] cursor-pointer text-sm"
+          >
+            Just Exploring
+          </span>
         </div>
       </div>
-
-      {/* Continue button right-aligned */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          width: contentMaxWidth,
-          marginTop: 32,
-        }}
-      >
-        <button
-          disabled={!projectType}
-          onClick={onNext}
-          style={{
-            padding: "10px 16px",
-            borderRadius: 6,
-            border: "none",
-            backgroundColor: projectType ? black : "#ccc",
-            color: white,
-            cursor: projectType ? "pointer" : "not-allowed",
-            fontFamily: "Inter, sans-serif",
-          }}
-        >
-          Continue
-        </button>
-      </div>
-    </div>
+    </section>
   );
 }
-
