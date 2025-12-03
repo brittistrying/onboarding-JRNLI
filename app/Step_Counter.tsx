@@ -1,9 +1,16 @@
-// renders UI only - checks, circles, only reads currentStep
 import React from "react";
 import { Check } from "lucide-react";
 
-export default function Step_Counter({ currentStep, totalSteps = 3 }) {
-  const steps = Array.from({ length: totalSteps }, (_, i) => i + 1);
+type StepCounterProps = {
+  currentStep: number;
+  totalSteps?: number;
+};
+
+export default function Step_Counter({
+  currentStep,
+  totalSteps = 3,
+}: StepCounterProps) {
+  const steps: number[] = Array.from({ length: totalSteps }, (_, i) => i + 1);
 
   return (
     <div className="flex items-center justify-between w-full max-w-3xl mx-auto">

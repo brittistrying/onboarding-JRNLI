@@ -6,12 +6,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import type { WorkspaceData } from "./types";
 import { useRouter } from "next/navigation";
 import Step_Counter from "./Step_Counter";
 import Button from "./Button";
 import Step1_ProjectType from "./onboarding/Step1_ProjectType";
 import Step2_WorkspaceName from "./onboarding/Step2_WorkspaceName";
 import Step3_Upload from "./onboarding/Step3_Upload";
+import posthog from "../lib/posthog";
 
 export default function Page_Flow() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -20,22 +22,19 @@ export default function Page_Flow() {
   const totalSteps = 3;
   const router = useRouter();
 
-  // Workspace data storage
-  const [workspaceData, setWorkspaceData] = useState({
-    projectType: null,
-    workspaceName: "",
-    uploadedFiles: [],
-    tellUsText: "",
-  });
-
   useEffect(() => {
     if (currentStep !== 3) setIsSkipped(false);
     setIsStepValid(false);
   }, [currentStep]);
 
-  const nextStep = () =>
-    currentStep < totalSteps && setCurrentStep((s) => s + 1);
+  const nextStep = () => {
+    posthog.capture("Step Reached", {
+      stepNumber: currentStep,
+      timestamp: new Date().toISOString(),
+    });
 
+    if (currentStep < totalSteps) setCurrentStep((s) => s + 1);
+  };
   const prevStep = () => {
     if (currentStep === 3 && isSkipped) {
       setIsSkipped(false);
@@ -56,14 +55,20 @@ export default function Page_Flow() {
     }
   };
 
-  // Create Workspace captures data to console
+  // Create Workspace captures data to console & posthog
   const goCreateWorkspace = () => {
     console.log("Workspace data captured:", workspaceData);
-
-    router.push("/app/home"); // <-- replace with route to app that contains context
+    posthog.capture("Workspace Created", {
+      uploadedFilesCount: workspaceData.uploadedFiles.length,
+      usedTellUsText: workspaceData.tellUsText.trim().length > 0,
+      projectType: workspaceData.projectType || "Just Exploring",
+      workspaceName: workspaceData.workspaceName,
+      lastStepReached: currentStep,
+      timestamp: new Date().toISOString(),
+    });
+    router.push("/app/home"); // <-- replace with route to app that contains user inputs
   };
 
-  //Each step reads and updates data
   const renderStep = () => {
     const commonProps = {
       setStepValid: setIsStepValid,
@@ -93,6 +98,15 @@ export default function Page_Flow() {
       <span>Skip</span>
     </div>
   );
+
+  const initialWorkspaceData: WorkspaceData = {
+    projectType: null,
+    workspaceName: "",
+    uploadedFiles: [],
+    tellUsText: "",
+  };
+  const [workspaceData, setWorkspaceData] =
+    useState<WorkspaceData>(initialWorkspaceData);
 
   return (
     <div className="max-w-3xl mx-auto p-4">

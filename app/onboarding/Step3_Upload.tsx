@@ -1,14 +1,23 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import type { WorkspaceData } from "../types";
+import posthog from "../PostHogProvider";
+
+type Step3Props = {
+  setStepValid: (valid: boolean) => void;
+  workspaceData: WorkspaceData;
+  setWorkspaceData: React.Dispatch<React.SetStateAction<WorkspaceData>>;
+  isSkipped?: boolean;
+};
 
 export default function Step3_Upload({
   setStepValid,
   workspaceData,
   setWorkspaceData,
   isSkipped = false,
-}) {
-  const [files, setFiles] = useState(workspaceData.uploadedFiles || []);
+}: Step3Props) {
+  const [files, setFiles] = useState<File[]>(workspaceData.uploadedFiles || []);
   const [skipText, setSkipText] = useState(workspaceData.tellUsText || "");
 
   useEffect(() => {
@@ -18,7 +27,6 @@ export default function Step3_Upload({
       setStepValid(files.length > 0);
     }
 
-    // Update workspace data
     setWorkspaceData((prev) => ({
       ...prev,
       uploadedFiles: files,
@@ -27,15 +35,15 @@ export default function Step3_Upload({
 
     console.log("Step 3 files:", files);
     console.log("Step 3 skipped text:", skipText);
-  }, [files, skipText, isSkipped]);
+  }, [files, skipText, isSkipped, setStepValid, setWorkspaceData]);
 
-  function handleFileChange(event) {
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const selectedFiles = Array.from(event.target.files || []);
     const combinedFiles = [...files, ...selectedFiles].slice(0, 3);
     setFiles(combinedFiles);
   }
 
-  function removeFile(index) {
+  function removeFile(index: number) {
     const newFiles = [...files];
     newFiles.splice(index, 1);
     setFiles(newFiles);

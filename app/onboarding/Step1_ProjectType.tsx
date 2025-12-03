@@ -2,8 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import posthog from "../PostHogProvider";
+import type { WorkspaceData } from "../types";
 
-const EXPLORE_URL = "/app/sample"; // <--- replace with sample route
+const EXPLORE_URL = "/app/sample";
 
 const OPTIONS = [
   "Email or Newsletter",
@@ -14,13 +16,22 @@ const OPTIONS = [
   "Other",
 ];
 
+interface Step1_ProjectTypeProps {
+  setStepValid: (valid: boolean) => void;
+  workspaceData: WorkspaceData;
+  setWorkspaceData: React.Dispatch<React.SetStateAction<WorkspaceData>>;
+}
+
 export default function Step1_ProjectType({
   setStepValid,
   workspaceData,
   setWorkspaceData,
-}) {
+}: Step1_ProjectTypeProps) {
   const router = useRouter();
-  const [selected, setSelected] = useState(workspaceData.projectType || null);
+
+  const [selected, setSelected] = useState<string | null>(
+    workspaceData.projectType || null
+  );
 
   useEffect(() => {
     setStepValid(Boolean(selected));
@@ -28,14 +39,14 @@ export default function Step1_ProjectType({
     setWorkspaceData((prev) => ({ ...prev, projectType: selected }));
 
     console.log("Step 1 selected project type:", selected);
-  }, [selected]);
+  }, [selected, setStepValid, setWorkspaceData]);
 
-  function handleOptionClick(option) {
+  function handleOptionClick(option: string) {
     setSelected(option);
   }
 
   function handleExploreClick() {
-    router.push(EXPLORE_URL);
+    router.push(EXPLORE_URL); // <-- replace with route to app w sample data
   }
 
   return (

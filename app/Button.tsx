@@ -1,17 +1,23 @@
-//reusable button UI and behavior
 import React from "react";
 import { colors, fonts } from "./design";
+
+type ButtonProps = {
+  children: React.ReactNode;
+  onClick?: () => void;
+  variant?: "primary" | "secondary";
+  disabled?: boolean;
+};
 
 export default function Button({
   children,
   onClick,
   variant = "primary",
   disabled = false,
-}) {
+}: ButtonProps) {
   let baseStyles =
     "px-4 py-2 rounded font-primary text-sm transition-colors duration-200 focus:outline-none";
 
-  let style = {};
+  let style: React.CSSProperties = {};
 
   if (variant === "primary") {
     style = {

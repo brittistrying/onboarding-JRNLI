@@ -1,12 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import type { WorkspaceData } from "../types";
+
+type Step2Props = {
+  setStepValid: (valid: boolean) => void;
+  workspaceData: WorkspaceData;
+  setWorkspaceData: React.Dispatch<React.SetStateAction<WorkspaceData>>;
+};
 
 export default function Step2_WorkspaceName({
   setStepValid,
   workspaceData,
   setWorkspaceData,
-}) {
+}: Step2Props) {
   const [workspaceName, setWorkspaceName] = useState(
     workspaceData.workspaceName || ""
   );
@@ -15,13 +22,12 @@ export default function Step2_WorkspaceName({
   useEffect(() => {
     setStepValid(workspaceName.trim().length > 0);
 
-    // Update workspace title data
     setWorkspaceData((prev) => ({ ...prev, workspaceName }));
 
     console.log("Step 2 workspace name:", workspaceName);
-  }, [workspaceName]);
+  }, [workspaceName, setStepValid, setWorkspaceData]);
 
-  function handleChange(e) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     if (value.length <= maxChars) {
       setWorkspaceName(value);
