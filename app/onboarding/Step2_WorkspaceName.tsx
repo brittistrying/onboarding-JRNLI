@@ -3,17 +3,17 @@
 import React, { useState, useEffect } from "react";
 import type { WorkspaceData } from "../types";
 
-type Step2Props = {
+interface Step2Handlers {
   setStepValid: (valid: boolean) => void;
   workspaceData: WorkspaceData;
   setWorkspaceData: React.Dispatch<React.SetStateAction<WorkspaceData>>;
-};
+}
 
 export default function Step2_WorkspaceName({
   setStepValid,
   workspaceData,
   setWorkspaceData,
-}: Step2Props) {
+}: Step2Handlers) {
   const [workspaceName, setWorkspaceName] = useState(
     workspaceData.workspaceName || ""
   );

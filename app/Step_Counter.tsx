@@ -1,10 +1,10 @@
 import React from "react";
 import { Check } from "lucide-react";
 
-type StepCounterProps = {
+interface StepCounterProps {
   currentStep: number;
   totalSteps?: number;
-};
+}
 
 export default function Step_Counter({
   currentStep,

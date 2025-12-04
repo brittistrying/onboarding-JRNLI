@@ -16,7 +16,7 @@ const OPTIONS = [
   "Other",
 ];
 
-interface Step1_ProjectTypeProps {
+interface Step1Handlers {
   setStepValid: (valid: boolean) => void;
   workspaceData: WorkspaceData;
   setWorkspaceData: React.Dispatch<React.SetStateAction<WorkspaceData>>;
@@ -26,7 +26,7 @@ export default function Step1_ProjectType({
   setStepValid,
   workspaceData,
   setWorkspaceData,
-}: Step1_ProjectTypeProps) {
+}: Step1Handlers) {
   const router = useRouter();
 
   const [selected, setSelected] = useState<string | null>(

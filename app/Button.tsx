@@ -1,12 +1,12 @@
 import React from "react";
 import { colors, fonts } from "./design";
 
-type ButtonProps = {
+interface ButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
   variant?: "primary" | "secondary";
   disabled?: boolean;
-};
+}
 
 export default function Button({
   children,

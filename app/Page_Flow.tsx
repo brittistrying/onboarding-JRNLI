@@ -6,19 +6,35 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import type { WorkspaceData } from "./types";
 import { useRouter } from "next/navigation";
 import Step_Counter from "./Step_Counter";
 import Button from "./Button";
 import Step1_ProjectType from "./onboarding/Step1_ProjectType";
 import Step2_WorkspaceName from "./onboarding/Step2_WorkspaceName";
 import Step3_Upload from "./onboarding/Step3_Upload";
+import { WorkspaceData } from "./types";
 import posthog from "../lib/posthog";
 
+interface StepHandlers {
+  setStepValid: (valid: boolean) => void;
+  workspaceData: WorkspaceData;
+  setWorkspaceData: React.Dispatch<React.SetStateAction<WorkspaceData>>;
+}
+
 export default function Page_Flow() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [isStepValid, setIsStepValid] = useState(false);
-  const [isSkipped, setIsSkipped] = useState(false);
+  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [isStepValid, setIsStepValid] = useState<boolean>(false);
+  const [isSkipped, setIsSkipped] = useState<boolean>(false);
+
+  const initialWorkspaceData: WorkspaceData = {
+    projectType: null,
+    workspaceName: "",
+    uploadedFiles: [],
+    tellUsText: "",
+  };
+  const [workspaceData, setWorkspaceData] =
+    useState<WorkspaceData>(initialWorkspaceData);
+
   const totalSteps = 3;
   const router = useRouter();
 
@@ -35,13 +51,14 @@ export default function Page_Flow() {
 
     if (currentStep < totalSteps) setCurrentStep((s) => s + 1);
   };
+
   const prevStep = () => {
     if (currentStep === 3 && isSkipped) {
       setIsSkipped(false);
       setIsStepValid(false);
       return;
     }
-    currentStep > 1 && setCurrentStep((s) => s - 1);
+    if (currentStep > 1) setCurrentStep((s) => s - 1);
   };
 
   const skipStep = () => {
@@ -55,7 +72,6 @@ export default function Page_Flow() {
     }
   };
 
-  // Create Workspace captures data to console & posthog
   const goCreateWorkspace = () => {
     console.log("Workspace data captured:", workspaceData);
     posthog.capture("Workspace Created", {
@@ -66,47 +82,27 @@ export default function Page_Flow() {
       lastStepReached: currentStep,
       timestamp: new Date().toISOString(),
     });
-    router.push("/app/home"); // <-- replace with route to app that contains user inputs
+    router.push("/app/home");
+  };
+
+  const stepProps: StepHandlers = {
+    setStepValid: setIsStepValid,
+    workspaceData,
+    setWorkspaceData,
   };
 
   const renderStep = () => {
-    const commonProps = {
-      setStepValid: setIsStepValid,
-      workspaceData,
-      setWorkspaceData,
-    };
-
     switch (currentStep) {
       case 1:
-        return <Step1_ProjectType {...commonProps} />;
+        return <Step1_ProjectType {...stepProps} />;
       case 2:
-        return <Step2_WorkspaceName {...commonProps} />;
+        return <Step2_WorkspaceName {...stepProps} />;
       case 3:
-        return <Step3_Upload {...commonProps} isSkipped={isSkipped} />;
+        return <Step3_Upload {...stepProps} isSkipped={isSkipped} />;
       default:
         return null;
     }
   };
-
-  const buttonPlaceholder = (
-    <div className="invisible">
-      <Button variant="secondary">Back</Button>
-    </div>
-  );
-  const skipPlaceholder = (
-    <div className="invisible">
-      <span>Skip</span>
-    </div>
-  );
-
-  const initialWorkspaceData: WorkspaceData = {
-    projectType: null,
-    workspaceName: "",
-    uploadedFiles: [],
-    tellUsText: "",
-  };
-  const [workspaceData, setWorkspaceData] =
-    useState<WorkspaceData>(initialWorkspaceData);
 
   return (
     <div className="max-w-3xl mx-auto p-4">
@@ -114,7 +110,7 @@ export default function Page_Flow() {
 
       <div className="mt-8">{renderStep()}</div>
 
-      {/* Buttons grid */}
+      {/* Buttons */}
       <div className="grid grid-cols-3 mt-6 items-center">
         <div className="flex justify-start">
           {currentStep > 1 ? (
@@ -122,7 +118,9 @@ export default function Page_Flow() {
               Back
             </Button>
           ) : (
-            buttonPlaceholder
+            <div className="invisible">
+              <Button variant="secondary">Back</Button>
+            </div>
           )}
         </div>
 
@@ -135,7 +133,9 @@ export default function Page_Flow() {
               Skip
             </span>
           ) : (
-            skipPlaceholder
+            <div className="invisible">
+              <span>Skip</span>
+            </div>
           )}
         </div>
 

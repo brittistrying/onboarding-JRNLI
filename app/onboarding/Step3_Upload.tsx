@@ -4,19 +4,19 @@ import React, { useEffect, useState } from "react";
 import type { WorkspaceData } from "../types";
 import posthog from "../PostHogProvider";
 
-type Step3Props = {
+interface Step3Handlers {
   setStepValid: (valid: boolean) => void;
   workspaceData: WorkspaceData;
   setWorkspaceData: React.Dispatch<React.SetStateAction<WorkspaceData>>;
   isSkipped?: boolean;
-};
+}
 
 export default function Step3_Upload({
   setStepValid,
   workspaceData,
   setWorkspaceData,
   isSkipped = false,
-}: Step3Props) {
+}: Step3Handlers) {
   const [files, setFiles] = useState<File[]>(workspaceData.uploadedFiles || []);
   const [skipText, setSkipText] = useState(workspaceData.tellUsText || "");
 
@@ -87,6 +87,7 @@ export default function Step3_Upload({
       </p>
 
       <div className="flex flex-col gap-2">
+        {/* File upload area */}
         <label
           htmlFor="file-upload"
           className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 cursor-pointer hover:border-black transition-colors ${
@@ -106,9 +107,10 @@ export default function Step3_Upload({
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M4 16v-2a4 4 0 014-4h4M12 4v12m0 0l-4-4m4 4l4-4"
+              d="M12 4v16m-8-8h16"
             />
           </svg>
+
           <span className="text-sm text-gray-600">
             {files.length >= 3
               ? "Maximum 3 files uploaded"
@@ -126,36 +128,55 @@ export default function Step3_Upload({
           disabled={files.length >= 3}
         />
 
+        {/* Uploaded files list */}
         {files.length > 0 && (
-          <ul className="mt-2 flex flex-col gap-1">
+          <ul className="mt-2 flex flex-col gap-2">
             {files.map((file, index) => (
               <li
                 key={index}
                 className="flex justify-between items-center border px-3 py-2 rounded shadow-sm bg-gray-50"
               >
+                {/* File name + uploaded icon */}
                 <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-black flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-3 h-3 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={3}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                  <span className="text-sm">{file.name}</span>
+                </div>
+
+                {/* Delete button */}
+                <button
+                  type="button"
+                  onClick={() => removeFile(index)}
+                  className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center hover:bg-red-500 transition-colors"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-black"
+                    className="w-3 h-3 text-black hover:text-white"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
-                    strokeWidth={2}
+                    strokeWidth={3}
                   >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M21.44 11.05l-9.9 9.9a5 5 0 01-7.07-7.07l9.9-9.9a3.5 3.5 0 014.95 4.95l-9.9 9.9a1.5 1.5 0 01-2.12-2.12l9.9-9.9"
+                      d="M6 6l12 12M6 18L18 6"
                     />
                   </svg>
-                  <span className="text-sm">{file.name}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeFile(index)}
-                  className="text-red-500 text-xs underline"
-                >
-                  Remove
                 </button>
               </li>
             ))}
