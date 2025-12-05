@@ -1,7 +1,8 @@
+// Just the UI
 import React from "react";
 import { Check } from "lucide-react";
 
-interface StepCounterProps {
+interface StepCounterHandler {
   currentStep: number;
   totalSteps?: number;
 }
@@ -9,7 +10,7 @@ interface StepCounterProps {
 export default function Step_Counter({
   currentStep,
   totalSteps = 3,
-}: StepCounterProps) {
+}: StepCounterHandler) {
   const steps: number[] = Array.from({ length: totalSteps }, (_, i) => i + 1);
 
   return (

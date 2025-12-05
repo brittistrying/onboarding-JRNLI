@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import type { WorkspaceData } from "../types";
-import posthog from "../PostHogProvider";
 
 interface Step3Handlers {
   setStepValid: (valid: boolean) => void;

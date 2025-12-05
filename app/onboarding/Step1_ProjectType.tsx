@@ -2,10 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import posthog from "../PostHogProvider";
 import type { WorkspaceData } from "../types";
 
-const EXPLORE_URL = "/app/sample";
+const EXPLORE_URL = "/mock_webapp"; // <-- replace with route to app w sample data
 
 const OPTIONS = [
   "Email or Newsletter",
@@ -46,7 +45,7 @@ export default function Step1_ProjectType({
   }
 
   function handleExploreClick() {
-    router.push(EXPLORE_URL); // <-- replace with route to app w sample data
+    router.push(EXPLORE_URL);
   }
 
   return (
