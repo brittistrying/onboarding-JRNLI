@@ -2,12 +2,17 @@
 
 import React, { useEffect, useState } from "react";
 import type { WorkspaceData } from "../types";
+import { Nav } from "./Nav";
 
 interface Step3Handlers {
   setStepValid: (valid: boolean) => void;
   workspaceData: WorkspaceData;
   setWorkspaceData: React.Dispatch<React.SetStateAction<WorkspaceData>>;
   isSkipped?: boolean;
+  next: () => void;
+  prev: () => void;
+  skip: () => void;
+  createWorkspace: () => void;
 }
 
 export default function Step3_Upload({
@@ -15,6 +20,10 @@ export default function Step3_Upload({
   workspaceData,
   setWorkspaceData,
   isSkipped = false,
+  next,
+  prev,
+  skip,
+  createWorkspace,
 }: Step3Handlers) {
   const [files, setFiles] = useState<File[]>(workspaceData.uploadedFiles || []);
   const [skipText, setSkipText] = useState(workspaceData.tellUsText || "");
@@ -58,8 +67,17 @@ export default function Step3_Upload({
         <textarea
           value={skipText}
           onChange={(e) => setSkipText(e.target.value)}
-          placeholder={`Tell us what you’re working toward so we can write with you, not just for you. The more context you share - like goals, tone, audience, or key points - the better your writing partner can assist you.`}
+          placeholder={`Tell us what you're working toward so we can write with you, not just for you. The more context you share - like goals, tone, audience, or key points - the better your writing partner can assist you.`}
           className="w-full min-h-[160px] border border-gray-200 rounded-lg p-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D090A]"
+        />
+        <Nav
+          back={{ action: prev }}
+          skip={{ visible: false }}
+          next={{
+            action: createWorkspace,
+            disabled: skipText.trim().length === 0,
+            text: "Create Workspace",
+          }}
         />
       </section>
     );
@@ -69,7 +87,7 @@ export default function Step3_Upload({
     <section className="p-6 bg-white rounded shadow flex flex-col gap-6">
       <header>
         <h1 className="text-2xl font-semibold">
-          Do you have any materials or notes you're working from?
+          Do you have any materials or notes you&apos;re working from?
         </h1>
       </header>
 
@@ -186,6 +204,15 @@ export default function Step3_Upload({
           {files.length}/3 files uploaded
         </p>
       </div>
+      <Nav
+        back={{ action: prev }}
+        skip={{ action: skip, visible: true }}
+        next={{
+          action: createWorkspace,
+          disabled: files.length === 0,
+          text: "Create Workspace",
+        }}
+      />
     </section>
   );
 }
