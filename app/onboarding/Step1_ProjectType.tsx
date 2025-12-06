@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { WorkspaceData } from "../types";
+import { Nav } from "./Nav";
 
 const EXPLORE_URL = "/mock_webapp"; // <-- replace with route to app w sample data
 
@@ -19,12 +20,14 @@ interface Step1Handlers {
   setStepValid: (valid: boolean) => void;
   workspaceData: WorkspaceData;
   setWorkspaceData: React.Dispatch<React.SetStateAction<WorkspaceData>>;
+  next: () => void;
 }
 
 export default function Step1_ProjectType({
   setStepValid,
   workspaceData,
   setWorkspaceData,
+  next,
 }: Step1Handlers) {
   const router = useRouter();
 
@@ -52,7 +55,7 @@ export default function Step1_ProjectType({
     <section className="p-6 bg-white rounded shadow flex flex-col gap-6">
       <header>
         <h1 className="text-2xl font-semibold">
-          Let's Create Your First Workspace!
+          Let&apos;s Create Your First Workspace!
         </h1>
         <p className="mt-3 text-sm text-gray-700 leading-relaxed">
           Contextual workspaces are dedicated focus areas that group your
@@ -105,6 +108,7 @@ export default function Step1_ProjectType({
           </span>
         </div>
       </div>
+      <Nav next={{ action: next, disabled: !selected }} />
     </section>
   );
 }

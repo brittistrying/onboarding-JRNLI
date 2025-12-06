@@ -3,12 +3,10 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Step_Counter from "./Step_Counter";
-import Button from "./Button";
 import Step1_ProjectType from "./onboarding/Step1_ProjectType";
 import Step2_WorkspaceName from "./onboarding/Step2_WorkspaceName";
 import Step3_Upload from "./onboarding/Step3_Upload";
 import { WorkspaceData } from "./types";
-import posthog from "../lib/posthog";
 
 // safe wrapper to ensure PostHog is ready
 const safeCapture = (event: string, props?: Record<string, any>) => {
@@ -20,92 +18,99 @@ const safeCapture = (event: string, props?: Record<string, any>) => {
   }
 };
 
-interface StepHandlers {
-  setStepValid: (valid: boolean) => void;
-  workspaceData: WorkspaceData;
-  setWorkspaceData: React.Dispatch<React.SetStateAction<WorkspaceData>>;
-}
-
 export default function Page_Flow() {
+  const router = useRouter();
+
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isStepValid, setIsStepValid] = useState<boolean>(false);
   const [isSkipped, setIsSkipped] = useState<boolean>(false);
-
-  const initialWorkspaceData: WorkspaceData = {
+  const [workspaceData, setWorkspaceData] = useState<WorkspaceData>({
     projectType: null,
     workspaceName: "",
     uploadedFiles: [],
     tellUsText: "",
-  };
-  const [workspaceData, setWorkspaceData] =
-    useState<WorkspaceData>(initialWorkspaceData);
+  });
 
-  const totalSteps = 3;
-  const router = useRouter();
+  const steps = [
+    {
+      id: 1,
+      render: () => (
+        <Step1_ProjectType
+          setStepValid={setIsStepValid}
+          workspaceData={workspaceData}
+          setWorkspaceData={setWorkspaceData}
+          next={nextStep}
+          prev={prevStep}
+        />
+      ),
+    },
+    {
+      id: 2,
+      render: () => (
+        <Step2_WorkspaceName
+          setStepValid={setIsStepValid}
+          workspaceData={workspaceData}
+          setWorkspaceData={setWorkspaceData}
+          next={nextStep}
+          prev={prevStep}
+        />
+      ),
+    },
+    {
+      id: 3,
+      render: () => (
+        <Step3_Upload
+          setStepValid={setIsStepValid}
+          workspaceData={workspaceData}
+          setWorkspaceData={setWorkspaceData}
+          isSkipped={isSkipped}
+          next={nextStep}
+          prev={prevStep}
+          skip={skipStep}
+          createWorkspace={goCreateWorkspace}
+        />
+      ),
+    },
+  ];
+
+  const renderStep = (currentStep: number) => {
+    return steps[currentStep - 1].render();
+  };
 
   // Capture step reached whenever currentStep changes
   useEffect(() => {
     // Only fire for normal navigation, skip is captured inside skipStep
-    if (currentStep !== 3 || !isSkipped) {
+    if (currentStep <= steps.length && !isSkipped) {
       safeCapture("Step Reached", {
         stepNumber: String(currentStep),
-        isSkipped: false,
         timestamp: new Date().toISOString(),
       });
     }
 
-    if (currentStep !== 3) setIsSkipped(false);
     setIsStepValid(false);
   }, [currentStep, isSkipped]);
 
-  // Optional: track abandonment on refresh/close
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      safeCapture("Onboarding Abandoned", {
-        lastStepReached: currentStep,
-        isSkipped,
-        timestamp: new Date().toISOString(),
-      });
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [currentStep, isSkipped]);
-
   const nextStep = () => {
-    if (currentStep < totalSteps) setCurrentStep((s) => s + 1);
+    // Guard Clause
+    if (currentStep >= steps.length) return;
+
+    setCurrentStep((s) => s + 1);
+    setIsSkipped(false);
+    setIsStepValid(false);
   };
 
   const prevStep = () => {
-    if (currentStep === 3 && isSkipped) {
-      setIsSkipped(false);
-      setIsStepValid(false);
-      return;
-    }
-    if (currentStep > 1) setCurrentStep((s) => s - 1);
+    // Guard Clause
+    if (currentStep <= 1) return;
+
+    setCurrentStep((s) => s - 1);
+    setIsSkipped(false);
+    setIsStepValid(false);
   };
 
-  // Skip still represents step 3, but with a different view
   const skipStep = () => {
-    if (currentStep === 3) {
-      setIsSkipped(true);
-      setIsStepValid(false);
-
-      safeCapture("Step Reached", {
-        stepNumber: "3",
-        isSkipped: true,
-        timestamp: new Date().toISOString(),
-      });
-    } else {
-      setCurrentStep(3);
-      setIsSkipped(true);
-      setIsStepValid(false);
-
-      safeCapture("Step Reached", {
-        stepNumber: "3",
-        isSkipped: true,
-        timestamp: new Date().toISOString(),
-      });
-    }
+    setIsSkipped(true);
+    nextStep();
   };
 
   const goCreateWorkspace = () => {
@@ -121,82 +126,26 @@ export default function Page_Flow() {
     router.push("/mock_webapp");
   };
 
-  const stepProps: StepHandlers = {
-    setStepValid: setIsStepValid,
-    workspaceData,
-    setWorkspaceData,
-  };
-
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return <Step1_ProjectType {...stepProps} />;
-      case 2:
-        return <Step2_WorkspaceName {...stepProps} />;
-      case 3:
-        return <Step3_Upload {...stepProps} isSkipped={isSkipped} />;
-      default:
-        return null;
-    }
-  };
+  // Optional: track abandonment on refresh/close
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      safeCapture("Onboarding Abandoned", {
+        lastStepReached: currentStep,
+        isSkipped,
+        timestamp: new Date().toISOString(),
+      });
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [currentStep, isSkipped]);
 
   return (
     <div className="max-w-3xl mx-auto p-4">
-      <Step_Counter currentStep={currentStep} totalSteps={totalSteps} />
+      <Step_Counter currentStep={currentStep} totalSteps={steps.length} />
 
-      <div className="mt-8">{renderStep()}</div>
+      <div className="mt-8">{renderStep(currentStep)}</div>
 
-      {/* Buttons */}
-      <div className="grid grid-cols-3 mt-6 items-center">
-        <div className="flex justify-start">
-          {currentStep > 1 ? (
-            <Button variant="secondary" onClick={prevStep}>
-              Back
-            </Button>
-          ) : (
-            <div className="invisible">
-              <Button variant="secondary">Back</Button>
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-center">
-          {currentStep === totalSteps && !isSkipped ? (
-            <span
-              onClick={skipStep}
-              className="underline text-[#0D090A] cursor-pointer"
-            >
-              Skip
-            </span>
-          ) : (
-            <div className="invisible">
-              <span>Skip</span>
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-end">
-          {currentStep === totalSteps ? (
-            <Button
-              variant="primary"
-              onClick={goCreateWorkspace}
-              disabled={!isStepValid}
-            >
-              Create Workspace
-            </Button>
-          ) : (
-            <Button
-              variant="primary"
-              onClick={nextStep}
-              disabled={!isStepValid}
-            >
-              Continue
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {currentStep === totalSteps && (
+      {currentStep === steps.length && (
         <div className="mt-15 flex justify-center">
           <span
             onClick={() => router.push("/data-privacy")}
@@ -248,7 +197,7 @@ export default function Page_Flow() {
 //   const [workspaceData, setWorkspaceData] =
 //     useState<WorkspaceData>(initialWorkspaceData);
 
-//   const totalSteps = 3;
+//   const steps.length = 3;
 //   const router = useRouter();
 
 //   useEffect(() => {
@@ -262,7 +211,7 @@ export default function Page_Flow() {
 //       timestamp: new Date().toISOString(),
 //     });
 
-//     if (currentStep < totalSteps) setCurrentStep((s) => s + 1);
+//     if (currentStep < steps.length) setCurrentStep((s) => s + 1);
 //   };
 
 //   const prevStep = () => {
@@ -319,7 +268,7 @@ export default function Page_Flow() {
 
 //   return (
 //     <div className="max-w-3xl mx-auto p-4">
-//       <Step_Counter currentStep={currentStep} totalSteps={totalSteps} />
+//       <Step_Counter currentStep={currentStep} steps.length={steps.length} />
 
 //       <div className="mt-8">{renderStep()}</div>
 
@@ -338,7 +287,7 @@ export default function Page_Flow() {
 //         </div>
 
 //         <div className="flex justify-center">
-//           {currentStep === totalSteps && !isSkipped ? (
+//           {currentStep === steps.length && !isSkipped ? (
 //             <span
 //               onClick={skipStep}
 //               className="underline text-[#0D090A] cursor-pointer"
@@ -353,7 +302,7 @@ export default function Page_Flow() {
 //         </div>
 
 //         <div className="flex justify-end">
-//           {currentStep === totalSteps ? (
+//           {currentStep === steps.length ? (
 //             <Button
 //               variant="primary"
 //               onClick={goCreateWorkspace}
@@ -373,7 +322,7 @@ export default function Page_Flow() {
 //         </div>
 //       </div>
 
-//       {currentStep === totalSteps && (
+//       {currentStep === steps.length && (
 //         <div className="mt-15 flex justify-center">
 //           <span
 //             onClick={() => router.push("/data-privacy")}
