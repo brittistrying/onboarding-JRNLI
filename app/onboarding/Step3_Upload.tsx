@@ -6,16 +6,12 @@ import { Nav } from "./Nav";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { X } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast"; // <-- hook for toast
 
 interface Step3Props {
   setStepValid: (valid: boolean) => void;
   workspaceData: WorkspaceData;
   setWorkspaceData: React.Dispatch<React.SetStateAction<WorkspaceData>>;
-  isSkipped?: boolean;
-  next: () => void;
   prev: () => void;
-  skip: () => void;
   createWorkspace: () => void;
 }
 
@@ -23,16 +19,21 @@ export default function Step3_Upload({
   setStepValid,
   workspaceData,
   setWorkspaceData,
-  isSkipped = false,
-  next,
   prev,
-  skip,
   createWorkspace,
 }: Step3Props) {
   const [files, setFiles] = useState<File[]>(workspaceData.uploadedFiles || []);
   const [skipText, setSkipText] = useState(workspaceData.tellUsText || "");
+  const [isSkipped, setIsSkipped] = useState(false);
 
-  const { toast } = useToast(); // <-- get toast function
+  // 🔧 NEW: back behavior for skipped view
+  const handleBack = () => {
+    if (isSkipped) {
+      setIsSkipped(false); // go back to Upload view
+    } else {
+      prev(); // go back to Page 2
+    }
+  };
 
   useEffect(() => {
     if (isSkipped) {
@@ -53,14 +54,7 @@ export default function Step3_Upload({
     const newFiles: File[] = [];
 
     selectedFiles.forEach((file) => {
-      if (files.some((f) => f.name === file.name)) {
-        console.log("Duplicate file upload detected:", file.name); // <-- debug log
-        toast({
-          title: "File already uploaded",
-          description: `${file.name} has already been uploaded.`,
-          variant: "destructive",
-        });
-      } else {
+      if (!files.some((f) => f.name === file.name)) {
         newFiles.push(file);
       }
     });
@@ -75,20 +69,23 @@ export default function Step3_Upload({
     setFiles(newFiles);
   }
 
+  /* ---------------- SKIP MODE ---------------- */
   if (isSkipped) {
     return (
       <section className="p-6 bg-white rounded shadow flex flex-col gap-4">
         <header>
           <h1 className="text-2xl font-semibold">Tell Us Instead</h1>
         </header>
+
         <textarea
           value={skipText}
           onChange={(e) => setSkipText(e.target.value)}
           placeholder="Tell us what you're working toward..."
           className="w-full min-h-[160px] border border-gray-200 rounded-lg p-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#0D090A]"
         />
+
         <Nav
-          back={{ action: prev }}
+          back={{ action: handleBack }} // <-- updated here
           skip={{ visible: false }}
           next={{
             action: createWorkspace,
@@ -96,6 +93,7 @@ export default function Step3_Upload({
             text: "Create Workspace",
           }}
         />
+
         <div className="mt-15 flex justify-center">
           <Button
             asChild
@@ -109,6 +107,7 @@ export default function Step3_Upload({
     );
   }
 
+  /* ---------------- UPLOAD MODE ---------------- */
   return (
     <section className="p-6 bg-white rounded shadow flex flex-col gap-6">
       <header>
@@ -130,7 +129,6 @@ export default function Step3_Upload({
       </p>
 
       <div className="flex flex-col gap-2">
-        {/* File upload area */}
         <label
           htmlFor={files.length >= 3 ? undefined : "file-upload"}
           className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 transition-colors ${
@@ -172,7 +170,6 @@ export default function Step3_Upload({
           disabled={files.length >= 3}
         />
 
-        {/* Uploaded files list */}
         {files.length > 0 && (
           <ul className="mt-2 flex flex-col gap-2">
             {files.map((file, index) => (
@@ -221,7 +218,10 @@ export default function Step3_Upload({
 
       <Nav
         back={{ action: prev }}
-        skip={{ action: skip, visible: true }}
+        skip={{
+          action: () => setIsSkipped(true),
+          visible: true,
+        }}
         next={{
           action: createWorkspace,
           disabled: files.length === 0,
@@ -231,8 +231,8 @@ export default function Step3_Upload({
 
       <div className="mt-15 flex justify-center">
         <Button
+          asChild
           variant="link"
-          onClick={() => router.push("/data-privacy")}
           className="cursor-pointer underline text-sm"
         >
           <Link href="/data-privacy">Data Privacy</Link>

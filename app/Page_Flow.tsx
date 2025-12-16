@@ -23,7 +23,6 @@ export default function Page_Flow() {
 
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isStepValid, setIsStepValid] = useState<boolean>(false);
-  const [isSkipped, setIsSkipped] = useState<boolean>(false);
   const [workspaceData, setWorkspaceData] = useState<WorkspaceData>({
     projectType: null,
     workspaceName: "",
@@ -63,10 +62,7 @@ export default function Page_Flow() {
           setStepValid={setIsStepValid}
           workspaceData={workspaceData}
           setWorkspaceData={setWorkspaceData}
-          isSkipped={isSkipped}
-          next={nextStep}
           prev={prevStep}
-          skip={skipStep}
           createWorkspace={goCreateWorkspace}
         />
       ),
@@ -79,8 +75,7 @@ export default function Page_Flow() {
 
   // Capture step reached whenever currentStep changes
   useEffect(() => {
-    // Only fire for normal navigation, skip is captured inside skipStep
-    if (currentStep <= steps.length && !isSkipped) {
+    if (currentStep <= steps.length) {
       safeCapture("Step Reached", {
         stepNumber: String(currentStep),
         timestamp: new Date().toISOString(),
@@ -88,29 +83,20 @@ export default function Page_Flow() {
     }
 
     setIsStepValid(false);
-  }, [currentStep, isSkipped]);
+  }, [currentStep]);
 
   const nextStep = () => {
-    // Guard Clause
     if (currentStep >= steps.length) return;
 
     setCurrentStep((s) => s + 1);
-    setIsSkipped(false);
     setIsStepValid(false);
   };
 
   const prevStep = () => {
-    // Guard Clause
     if (currentStep <= 1) return;
 
     setCurrentStep((s) => s - 1);
-    setIsSkipped(false);
     setIsStepValid(false);
-  };
-
-  const skipStep = () => {
-    setIsSkipped(true);
-    nextStep();
   };
 
   const goCreateWorkspace = () => {
@@ -131,18 +117,17 @@ export default function Page_Flow() {
     const handleBeforeUnload = () => {
       safeCapture("Onboarding Abandoned", {
         lastStepReached: currentStep,
-        isSkipped,
         timestamp: new Date().toISOString(),
       });
     };
+
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [currentStep, isSkipped]);
+  }, [currentStep]);
 
   return (
     <div className="max-w-3xl mx-auto p-4">
       <Step_Counter currentStep={currentStep} totalSteps={steps.length} />
-
       <div className="mt-8">{renderStep(currentStep)}</div>
     </div>
   );

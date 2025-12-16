@@ -1,11 +1,7 @@
-"use client";
+// "use client";
 
-import { Toaster as SonnerToaster, toast as shadcnToast } from "sonner";
+// import { toast as shadcnToast } from "@/components/ui/use-toast"; // ShadCN toast
 
-export function useToast() {
-  return {
-    toast: shadcnToast,
-  };
-}
-
-export default SonnerToaster;
+// export function useToast() {
+//   return { toast: shadcnToast };
+// }

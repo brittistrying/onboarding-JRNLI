@@ -2,10 +2,9 @@ import React from "react";
 import type { Metadata } from "next";
 import { Inter as InterFont } from "next/font/google";
 import { Geist, Geist_Mono } from "next/font/google";
-// import {Archiv Grotesk,Lucida} from "next/font/google"; // need another way to load them in
+//import {Archiv Grotesk,Lucida} from "next/font/google"; // need another way to load them in
 import "./globals.css";
 import PostHogProvider from "./PostHogProvider";
-import Toaster from "@/components/ui/use-toast";
 
 const geistSans = Geist({
   variable: "--font-secondary",
@@ -45,11 +44,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${Inter.variable} antialiased`}
       >
-        <PostHogProvider>
-          {children}
-          {/* Toast container added here so toasts show on top of everything */}
-          <Toaster position="top-right" richColors className="z-[9999]" />
-        </PostHogProvider>
+        <PostHogProvider>{children}</PostHogProvider>
       </body>
     </html>
   );
