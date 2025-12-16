@@ -1,18 +1,34 @@
 import React from "react";
 import type { Metadata } from "next";
+import { Inter as InterFont } from "next/font/google";
 import { Geist, Geist_Mono } from "next/font/google";
+// import {Archiv Grotesk,Lucida} from "next/font/google"; // need another way to load them in
 import "./globals.css";
 import PostHogProvider from "./PostHogProvider";
+import Toaster from "@/components/ui/use-toast";
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
+  variable: "--font-secondary",
   subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+  variable: "--font-tertiary",
   subsets: ["latin"],
 });
+
+const Inter = InterFont({
+  variable: "--font-primary",
+  subsets: ["latin"],
+});
+
+// actual fonts that I cannot get loaded I need to get them in another way
+
+// const archivFont = ArchiveGrotesk
+// variable:"--font-secondary" });
+
+// const lucidaFont = Lucida
+// variable:"--font-tertiary" });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -27,9 +43,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${Inter.variable} antialiased`}
       >
-        <PostHogProvider>{children}</PostHogProvider>
+        <PostHogProvider>
+          {children}
+          {/* Toast container added here so toasts show on top of everything */}
+          <Toaster position="top-right" richColors className="z-[9999]" />
+        </PostHogProvider>
       </body>
     </html>
   );

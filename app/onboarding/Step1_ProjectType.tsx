@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { WorkspaceData } from "../types";
 import { Nav } from "./Nav";
+import { Button } from "@/components/ui/button";
 
 const EXPLORE_URL = "/mock_webapp"; // <-- replace with route to app w sample data
 
@@ -16,7 +17,7 @@ const OPTIONS = [
   "Other",
 ];
 
-interface Step1Handlers {
+interface Step1Props {
   setStepValid: (valid: boolean) => void;
   workspaceData: WorkspaceData;
   setWorkspaceData: React.Dispatch<React.SetStateAction<WorkspaceData>>;
@@ -28,7 +29,7 @@ export default function Step1_ProjectType({
   workspaceData,
   setWorkspaceData,
   next,
-}: Step1Handlers) {
+}: Step1Props) {
   const router = useRouter();
 
   const [selected, setSelected] = useState<string | null>(
@@ -80,7 +81,7 @@ export default function Step1_ProjectType({
           {OPTIONS.map((opt) => {
             const active = selected === opt;
             return (
-              <button
+              <Button
                 key={opt}
                 type="button"
                 role="radio"
@@ -89,23 +90,24 @@ export default function Step1_ProjectType({
                 className={
                   "rounded-lg px-3 py-3 text-sm text-center w-full transition-shadow duration-150 " +
                   (active
-                    ? "bg-[#0D090A] text-white ring-2 ring-offset-2 ring-[#0D090A]"
-                    : "bg-white border border-gray-200 text-[#0D090A] hover:shadow-sm")
+                    ? "bg-[#0D090A] text-white ring-2 ring-offset-2 ring-[#0D090A] hover:bg-[#0D090A]"
+                    : "bg-white border border-gray-200 text-[#0D090A] hover:bg-[#0D090A] hover:text-white")
                 }
               >
                 {opt}
-              </button>
+              </Button>
             );
           })}
         </div>
 
         <div className="flex justify-center">
-          <span
+          <Button
+            variant="link"
             onClick={handleExploreClick}
-            className="underline text-[#0D090A] cursor-pointer text-sm"
+            className="cursor-pointer underline text-sm"
           >
             Just Exploring
-          </span>
+          </Button>
         </div>
       </div>
       <Nav next={{ action: next, disabled: !selected }} />

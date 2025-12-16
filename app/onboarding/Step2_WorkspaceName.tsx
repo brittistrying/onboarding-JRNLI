@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import type { WorkspaceData } from "../types";
 import { Nav } from "./Nav";
 
-interface Step2Handlers {
+interface Step2Props {
   setStepValid: (valid: boolean) => void;
   workspaceData: WorkspaceData;
   setWorkspaceData: React.Dispatch<React.SetStateAction<WorkspaceData>>;
@@ -18,7 +18,7 @@ export default function Step2_WorkspaceName({
   setWorkspaceData,
   next,
   prev,
-}: Step2Handlers) {
+}: Step2Props) {
   const [workspaceName, setWorkspaceName] = useState(
     workspaceData.workspaceName || ""
   );

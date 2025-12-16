@@ -33,6 +33,7 @@ export function Nav({ back, skip, next }: NavProps) {
               variant={back.disabled ? "outline" : "secondary"}
               onClick={back.action || nothing}
               disabled={back.disabled}
+              className="cursor-pointer"
             >
               {back.text || "Back"}
             </Button>
@@ -43,21 +44,23 @@ export function Nav({ back, skip, next }: NavProps) {
           className={`flex justify-center ${!skipVisible ? "invisible" : ""}`}
         >
           {skip && (
-            <span
+            <Button
+              variant="link"
               onClick={skip.action || nothing}
-              className="underline text-[#0D090A] cursor-pointer"
+              className="cursor-pointer underline"
             >
               {skip.text || "Skip"}
-            </span>
+            </Button>
           )}
         </div>
 
         <div className={`flex justify-end ${!nextVisible ? "invisible" : ""}`}>
           {next && (
             <Button
-              variant={next.disabled ? "outline" : "secondary"}
+              variant={next.disabled ? "outline" : "primary"}
               onClick={next.action || nothing}
               disabled={next.disabled}
+              className="cursor-pointer"
             >
               {next.text || "Continue"}
             </Button>
