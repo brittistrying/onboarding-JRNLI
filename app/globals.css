@@ -50,7 +50,8 @@
   --brand-butter: #f7f797;
   --font-primary: "Inter";
   --font-secondary: "Archiv Grotesk";
-  --font-tertiary: "Lucida Lace";
+  --font-tertiary: "Lucida Lace", "Lucida Sans", "Lucida Grande", Arial,
+    sans-serif;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);

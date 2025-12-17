@@ -1,33 +1,25 @@
 import React from "react";
 import type { Metadata } from "next";
-import { Inter as InterFont } from "next/font/google";
-import { Geist, Geist_Mono } from "next/font/google";
-//import {Archiv Grotesk,Lucida} from "next/font/google"; // need another way to load them in
+import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import PostHogProvider from "./PostHogProvider";
 
-const geistSans = Geist({
-  variable: "--font-secondary",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-tertiary",
-  subsets: ["latin"],
-});
-
-const Inter = InterFont({
+export const inter = Inter({
   variable: "--font-primary",
   subsets: ["latin"],
 });
 
-// actual fonts that I cannot get loaded I need to get them in another way
-
-// const archivFont = ArchiveGrotesk
-// variable:"--font-secondary" });
-
-// const lucidaFont = Lucida
-// variable:"--font-tertiary" });
+export const archivGrotesk = localFont({
+  src: [
+    {
+      path: "./fonts/ArchivGrotesk-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+  ],
+  variable: "--font-secondary",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -41,11 +33,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      s
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${Inter.variable} antialiased`}
+        className={`${inter.variable}, ${archivGrotesk.variable} antialiased`}
       >
         <PostHogProvider>{children}</PostHogProvider>
       </body>
     </html>
   );
 }
+0;
