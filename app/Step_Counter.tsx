@@ -25,7 +25,7 @@ export default function Step_Counter({
           circleClasses += " bg-[#0D090A] border-[#0D090A] text-[#FFFFFF]";
         else if (active)
           circleClasses += " bg-[#FFFFFF] border-[#0D090A] text-[#0D090A]";
-        else circleClasses += " bg-[#FFFFFF] border-gray-400 text-[#0D090A]";
+        else circleClasses += " bg-[#FFFFFF] border-gray-400 text-gray-400";
 
         return (
           <React.Fragment key={step}>

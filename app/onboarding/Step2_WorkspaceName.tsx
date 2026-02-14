@@ -2,18 +2,23 @@
 
 import React, { useState, useEffect } from "react";
 import type { WorkspaceData } from "../types";
+import { Nav } from "./Nav";
 
-interface Step2Handlers {
+interface Step2Props {
   setStepValid: (valid: boolean) => void;
   workspaceData: WorkspaceData;
   setWorkspaceData: React.Dispatch<React.SetStateAction<WorkspaceData>>;
+  next: () => void;
+  prev: () => void;
 }
 
 export default function Step2_WorkspaceName({
   setStepValid,
   workspaceData,
   setWorkspaceData,
-}: Step2Handlers) {
+  next,
+  prev,
+}: Step2Props) {
   const [workspaceName, setWorkspaceName] = useState(
     workspaceData.workspaceName || ""
   );
@@ -57,6 +62,11 @@ export default function Step2_WorkspaceName({
           </span>
         </div>
       </div>
+      <Nav
+        back={{ action: prev }}
+        skip={{ visible: false }}
+        next={{ action: next, disabled: workspaceName.trim().length === 0 }}
+      />
     </section>
   );
 }

@@ -1,12 +1,13 @@
 export const colors = {
-  black: "#0D090A",
-  white: "#FFFFFF",
-  linen: "#F4F0E5",
-  gray: "#A0A0A0",
+  white: "var(--brand-white)",
+  black: "var(--brand-black)",
+  linen: "var(--brand-linen)",
+  yellow: "var(--brand-yellow)",
+  gray: "var(--brand-gray)",
 };
 
 export const fonts = {
-  primary: "Inter, sans-serif",
-  secondary: "Archive Grotesk, sans-serif",
-  tertiary: "Lucida, sans-serif",
+  primary: "var(--font-primary)",
+  secondary: "var(--font-secondary)",
+  tertiary: "var(--font-tertiary)",
 };
